@@ -1,5 +1,16 @@
 spring:
-    application:
-        name: fiap-hackathon-gateway-management
-server:
-    port: 8080
+  cloud:
+    gateway:
+        mvc:
+          routes:
+            - id: users_route
+              uri: http://localhost:8081
+              predicates:
+                - Path=/gateway-management/api/usuarios
+              filters:
+                - RewritePath=/gateway-management/api/usuarios, /user-management/api/v1/users
+
+          
+     
+
+
