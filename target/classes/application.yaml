@@ -8,12 +8,14 @@ spring:
               - Path=/gateway-management/api/usuarios
             filters:
               - RewritePath=/gateway-management/api/usuarios, /user-management/api/v1/users
+
           - id: create-client
             uri: http://localhost:8082
             predicates:
               - Path=/gateway-management/api/cliente
             filters:
               - RewritePath=/gateway-management/api/cliente, /api/cliente
+              
           - id: create-client-card
             uri: http://localhost:8083
             predicates:
