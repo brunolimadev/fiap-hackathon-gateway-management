@@ -105,8 +105,8 @@ public class CustomGlobalFilter implements WebFilter {
         // Definição do tipo de conteúdo da resposta
         ErrorDto errorDto = new ErrorDto(
                 "Ops...",
-                "Algo deu errado. Por favor, tente novamente.",
-                String.valueOf(HttpStatus.INTERNAL_SERVER_ERROR.value()), null);
+                "Recurso não autorizado.",
+                String.valueOf(HttpStatus.UNAUTHORIZED.value()), null);
 
         return exchange.getResponse()
                 .writeWith(
