@@ -5,31 +5,45 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.ProviderManager;
+import org.springframework.security.authentication.ReactiveAuthenticationManager;
+import org.springframework.security.authentication.UserDetailsRepositoryReactiveAuthenticationManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.Customizer;
-import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity;
+import org.springframework.security.config.web.server.SecurityWebFiltersOrder;
+import org.springframework.security.config.web.server.ServerHttpSecurity;
+import org.springframework.security.core.userdetails.ReactiveUserDetailsService;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.server.SecurityWebFilterChain;
 
+import br.com.fiap.gatewaymanagement.application.usecases.GetUserByEmailInteractor;
+import br.com.fiap.gatewaymanagement.application.usecases.ValidateJwtInteractor;
 import br.com.fiap.gatewaymanagement.infra.controllers.exceptions.CustomAuthenticationFailureHandler;
-import br.com.fiap.gatewaymanagement.main.filters.SecurityFilter;
+import br.com.fiap.gatewaymanagement.main.filters.CustomGlobalFilter;
 
 @Configuration
-@EnableWebSecurity
+@EnableWebFluxSecurity
 public class GatewayAppSecurityConfig {
-    private final SecurityFilter securityFilter;
+    // private final SecurityFilter securityFilter;
 
-    public GatewayAppSecurityConfig(SecurityFilter securityFilter) {
-        this.securityFilter = securityFilter;
+    // public GatewayAppSecurityConfig(SecurityFilter securityFilter) {
+    // this.securityFilter = securityFilter;
+    // }
+
+    private final GetUserByEmailInteractor getUserByEmailInteractor;
+
+    private final ValidateJwtInteractor validateJwtInteractor;
+
+    public GatewayAppSecurityConfig(GetUserByEmailInteractor getUserByEmailInteractor,
+            ValidateJwtInteractor validateJwtInteractor) {
+        this.getUserByEmailInteractor = getUserByEmailInteractor;
+        this.validateJwtInteractor = validateJwtInteractor;
     }
 
     @Bean
-    SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+    SecurityWebFilterChain filterChain(ServerHttpSecurity http) throws Exception {
 
         return http
 
@@ -39,25 +53,15 @@ public class GatewayAppSecurityConfig {
                 // Disable CSRF and Session Management to use Basic Authentication
                 .csrf(csrf -> csrf.disable())
 
-                // Disable Session Management to use Basic Authentication
-                .sessionManagement(AbstractHttpConfigurer::disable)
+                .authorizeExchange(exchange -> exchange
 
-                // Authorize Requests
-                .authorizeHttpRequests(
-                        authorize -> authorize
+                        // Permitir acesso às rotas de autenticação
+                        .pathMatchers(HttpMethod.POST, "/gateway-management/api/autenticacao/**").permitAll()
 
-                                // Allow access to Swagger
-                                .requestMatchers("/api-docs/**").permitAll()
-                                .requestMatchers("/swagger-ui/**").permitAll()
-
-                                // Allow access to application
-                                .requestMatchers(HttpMethod.POST, "/autenticacao").permitAll()
-
-                                .anyRequest().authenticated())
-                .addFilterBefore(securityFilter,
-                        UsernamePasswordAuthenticationFilter.class)
-                .exceptionHandling(exception -> exception
-                        .authenticationEntryPoint(new CustomAuthenticationFailureHandler()::onAuthenticationFailure))
+                        // Permitir acesso às rotas de autenticação
+                        .anyExchange().authenticated())
+                .addFilterBefore(new CustomGlobalFilter(validateJwtInteractor, getUserByEmailInteractor),
+                        SecurityWebFiltersOrder.AUTHENTICATION)
                 .build();
     }
 
@@ -69,13 +73,12 @@ public class GatewayAppSecurityConfig {
      * @return
      */
     @Bean
-    AuthenticationManager authenticationManager(UserDetailsService userDetailsService,
+    ReactiveAuthenticationManager authenticationManager(ReactiveUserDetailsService userDetailsService,
             PasswordEncoder passwordEncoder) {
-        DaoAuthenticationProvider authenticationProvider = new DaoAuthenticationProvider();
-        authenticationProvider.setUserDetailsService(userDetailsService);
-        authenticationProvider.setPasswordEncoder(passwordEncoder);
-
-        return new ProviderManager(authenticationProvider);
+        UserDetailsRepositoryReactiveAuthenticationManager authenticationManager = new UserDetailsRepositoryReactiveAuthenticationManager(
+                userDetailsService);
+        authenticationManager.setPasswordEncoder(passwordEncoder);
+        return authenticationManager;
     }
 
     /**

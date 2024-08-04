@@ -2,7 +2,7 @@ package br.com.fiap.gatewaymanagement.infra.controllers;
 
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.ReactiveAuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -17,45 +17,56 @@ import br.com.fiap.gatewaymanagement.infra.models.dtos.SignInResponseDto;
 import br.com.fiap.gatewaymanagement.infra.models.response.GetUserByEmailResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import reactor.core.publisher.Mono;
 
 @RestController
-@RequestMapping("/autenticacao")
+@RequestMapping("/gateway-management/api")
 @Tag(name = "Auth Controller", description = "User authentication")
 public class AuthController {
 
-    private final AuthenticationManager authenticationManager;
+    private final ReactiveAuthenticationManager authenticationManager;
     private final GenerateJwtInteractor generateJwtInteractor;
 
-    public AuthController(AuthenticationManager authenticationManager, GenerateJwtInteractor generateJwtInteractor) {
+    public AuthController(
+            ReactiveAuthenticationManager authenticationManager, GenerateJwtInteractor generateJwtInteractor) {
         this.authenticationManager = authenticationManager;
         this.generateJwtInteractor = generateJwtInteractor;
     }
 
-    @PostMapping
-    public ResponseEntity<?> signIn(@Valid @RequestBody AuthDto credentials) throws Exception {
+    @PostMapping("/autenticacao")
+    public Mono<ResponseEntity<SignInResponseDto>> signIn(@Valid @RequestBody AuthDto credentials) throws Exception {
 
         // Cria instancia de autenticação com os dados do usuário
         var userCredentials = new UsernamePasswordAuthenticationToken(credentials.email(), credentials.password());
 
         // Autentica o usuário
-        var authentication = authenticationManager.authenticate(userCredentials);
+        return authenticationManager.authenticate(userCredentials).flatMap(authentication -> {
 
-        User user = GetUserByEmailMapper.toDomain((GetUserByEmailResponse) authentication.getPrincipal());
+            User user = GetUserByEmailMapper.toDomain((GetUserByEmailResponse) authentication.getPrincipal());
 
-        // Gera o token
-        var jwt = generateJwtInteractor.execute(user);
+            // Gera o token
+            String jwt;
+            try {
+                jwt = generateJwtInteractor.execute(user);
 
-        // Adiciona o token no header da resposta
-        HttpHeaders hearders = new HttpHeaders();
+                // Adiciona o token no header da resposta
+                HttpHeaders hearders = new HttpHeaders();
 
-        // Adiciona a header Authorization com o token
-        hearders.add(HttpHeaders.AUTHORIZATION, "Bearer " + jwt);
+                // Adiciona a header Authorization com o token
+                hearders.add(HttpHeaders.AUTHORIZATION, "Bearer " + jwt);
 
-        // Cria o objeto de respota com o status e o nome do usuário
-        SignInResponseDto response = new SignInResponseDto(true,
-                ((GetUserByEmailResponse) authentication.getPrincipal()).getName());
+                // Cria o objeto de respota com o status e o nome do usuário
+                SignInResponseDto response = new SignInResponseDto(true,
+                        ((GetUserByEmailResponse) authentication.getPrincipal()).getName());
 
-        return ResponseEntity.ok().headers(hearders).body(response);
+                // Retorna a resposta com o token no header
+                return Mono.just(ResponseEntity.ok().headers(hearders).body(response));
+            } catch (Exception e) {
+                throw new RuntimeException("Erro ao gerar token");
+            }
+
+        }).onErrorResume(Exception.class, e -> Mono.just(ResponseEntity.badRequest().build()));
+        // return ResponseEntity.ok().headers(hearders).body(response);
     }
 
 }

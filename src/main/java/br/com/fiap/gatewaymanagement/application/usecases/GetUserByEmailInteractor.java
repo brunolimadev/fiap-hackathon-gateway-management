@@ -12,7 +12,7 @@ public class GetUserByEmailInteractor {
     }
 
     public User execute(String email) throws Exception {
-        return userGateway.getUserByEmail(email);
+        return userGateway.getUserByEmail(email).block();
     }
 
 }

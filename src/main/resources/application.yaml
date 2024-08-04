@@ -1,7 +1,6 @@
 spring:
   cloud:
     gateway:
-      mvc:
         routes:
           - id: users_route
             uri: http://localhost:8081
@@ -9,13 +8,16 @@ spring:
               - Path=/gateway-management/api/usuarios
             filters:
               - RewritePath=/gateway-management/api/usuarios, /user-management/api/v1/users
+  main:
+    web-application-type: reactive
+
 
 server:
   port: 8080
   servlet:
     context-path: /gateway-management/api
 
-api:
+api:                              
     security:
         jwt:
             secret: ${JWT_SECRET:fiaphackathonpaymentsystem}

@@ -4,6 +4,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.reactive.function.client.WebClient;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -34,8 +35,13 @@ public class GatewayAppConfig {
     }
 
     @Bean
-    UserGateway userGateway(RestTemplate restTemplate) {
-        return new UserRepositoryGateway(restTemplate);
+    UserGateway userGateway(WebClient.Builder wBuilder) {
+        return new UserRepositoryGateway(wBuilder);
+    }
+
+    @Bean
+    public WebClient.Builder webClientBuilder() {
+        return WebClient.builder();
     }
 
     @Bean
