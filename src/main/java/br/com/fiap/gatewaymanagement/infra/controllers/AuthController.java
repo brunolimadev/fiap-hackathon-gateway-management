@@ -10,6 +10,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import br.com.fiap.gatewaymanagement.application.usecases.GenerateJwtInteractor;
+import br.com.fiap.gatewaymanagement.domain.User;
+import br.com.fiap.gatewaymanagement.infra.gateways.mappers.GetUserByEmailMapper;
 import br.com.fiap.gatewaymanagement.infra.models.dtos.AuthDto;
 import br.com.fiap.gatewaymanagement.infra.models.dtos.SignInResponseDto;
 import br.com.fiap.gatewaymanagement.infra.models.response.GetUserByEmailResponse;
@@ -17,7 +19,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 
 @RestController
-@RequestMapping("/auth")
+@RequestMapping("/autenticacao")
 @Tag(name = "Auth Controller", description = "User authentication")
 public class AuthController {
 
@@ -29,7 +31,7 @@ public class AuthController {
         this.generateJwtInteractor = generateJwtInteractor;
     }
 
-    @PostMapping("/signin")
+    @PostMapping
     public ResponseEntity<?> signIn(@Valid @RequestBody AuthDto credentials) throws Exception {
 
         // Cria instancia de autenticação com os dados do usuário
@@ -38,8 +40,10 @@ public class AuthController {
         // Autentica o usuário
         var authentication = authenticationManager.authenticate(userCredentials);
 
+        User user = GetUserByEmailMapper.toDomain((GetUserByEmailResponse) authentication.getPrincipal());
+
         // Gera o token
-        var jwt = generateJwtInteractor.execute((GetUserByEmailResponse) authentication.getPrincipal());
+        var jwt = generateJwtInteractor.execute(user);
 
         // Adiciona o token no header da resposta
         HttpHeaders hearders = new HttpHeaders();

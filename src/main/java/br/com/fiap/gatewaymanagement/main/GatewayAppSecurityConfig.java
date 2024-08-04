@@ -51,18 +51,14 @@ public class GatewayAppSecurityConfig {
                                 .requestMatchers("/swagger-ui/**").permitAll()
 
                                 // Allow access to application
-                                .requestMatchers(HttpMethod.POST, "/auth/signin").permitAll()
-                                .requestMatchers(HttpMethod.POST, "/users").permitAll()
+                                .requestMatchers(HttpMethod.POST, "/autenticacao").permitAll()
 
-                                // Any other request must be authenticated
-                                .requestMatchers(HttpMethod.GET, "/auth/signout").authenticated()
                                 .anyRequest().authenticated())
                 .addFilterBefore(securityFilter,
                         UsernamePasswordAuthenticationFilter.class)
                 .exceptionHandling(exception -> exception
                         .authenticationEntryPoint(new CustomAuthenticationFailureHandler()::onAuthenticationFailure))
                 .build();
-
     }
 
     /**
@@ -91,5 +87,4 @@ public class GatewayAppSecurityConfig {
     PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
-
 }

@@ -1,40 +1,54 @@
 package br.com.fiap.gatewaymanagement.infra.models.response;
 
+import java.io.Serial;
+import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 
+import org.springframework.security.core.userdetails.UserDetails;
+
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import br.com.fiap.gatewaymanagement.infra.enums.RoleEnum;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Getter
 @Setter
 @AllArgsConstructor
-public class GetUserByEmailResponse implements UserDetails {
+@NoArgsConstructor
+public class GetUserByEmailResponse implements Serializable, UserDetails {
 
+    @Serial
+    private static final long serialVersionUID = 1L;
+
+    @JsonProperty("id")
     private UUID id;
 
+    @JsonProperty("name")
     private String name;
 
+    @JsonProperty("email")
     private String email;
 
+    @JsonProperty("password")
     private String password;
 
+    @JsonProperty("isActive")
     private boolean isActive;
 
+    @JsonProperty("createdAt")
     private LocalDateTime createdAt;
 
+    @JsonProperty("role")
     private RoleEnum role;
-
-    public GetUserByEmailResponse() {
-    }
 
     /**
      * Método responsável por retornar as autoridades do usuário
@@ -86,7 +100,8 @@ public class GetUserByEmailResponse implements UserDetails {
     }
 
     /**
-     * Método responsável por retornar se as credenciais do usuário estão expiradas
+     * Método responsável por retornar se as credenciais do usuário estão
+     * expiradas
      *
      * @return
      */

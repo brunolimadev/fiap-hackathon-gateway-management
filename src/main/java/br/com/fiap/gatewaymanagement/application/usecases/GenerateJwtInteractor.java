@@ -1,6 +1,7 @@
 package br.com.fiap.gatewaymanagement.application.usecases;
 
 import br.com.fiap.gatewaymanagement.application.gateways.JwtGateway;
+import br.com.fiap.gatewaymanagement.domain.User;
 
 public class GenerateJwtInteractor {
 
@@ -10,7 +11,7 @@ public class GenerateJwtInteractor {
         this.jwtGateway = jwtGateway;
     }
 
-    public String execute(Object user) throws Exception {
+    public String execute(User user) throws Exception {
         return jwtGateway.generateJwt(user);
     }
 }

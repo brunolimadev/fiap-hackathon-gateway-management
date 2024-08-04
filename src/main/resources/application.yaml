@@ -1,14 +1,28 @@
 spring:
   cloud:
     gateway:
-        mvc:
-          routes:
-            - id: users_route
-              uri: http://localhost:8081
-              predicates:
-                - Path=/gateway-management/api/usuarios
-              filters:
-                - RewritePath=/gateway-management/api/usuarios, /user-management/api/v1/users
+      mvc:
+        routes:
+          - id: users_route
+            uri: http://localhost:8081
+            predicates:
+              - Path=/gateway-management/api/usuarios
+            filters:
+              - RewritePath=/gateway-management/api/usuarios, /user-management/api/v1/users
+
+server:
+  port: 8080
+  servlet:
+    context-path: /gateway-management/api
+
+api:
+    security:
+        jwt:
+            secret: ${JWT_SECRET:fiaphackathonpaymentsystem}
+
+microservices:
+    user-ms:
+        url: ${USER_MS_URL:http://localhost:8081/user-management/api/v1/users}
 
           
      
