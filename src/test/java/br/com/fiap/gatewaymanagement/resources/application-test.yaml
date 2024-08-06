@@ -22,15 +22,9 @@ spring:
               - Path=/gateway-management/api/cartao
             filters:
               - RewritePath=/gateway-management/api/cartao, /api/cartao
-
-          - id: create-payment
-            uri: http://localhost:8084
-            predicates:
-              - Path=/gateway-management/api/pagamentos
-            filters:
-              - RewritePath=/gateway-management/api/pagamentos, /api/pagamentos
   main:
     web-application-type: reactive
+
 
 
 server:
@@ -46,8 +40,3 @@ api:
 microservices:
     user-ms:
         url: ${USER_MS_URL:http://localhost:8081/user-management/api/v1/users}
-
-          
-     
-
-

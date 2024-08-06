@@ -34,7 +34,7 @@ public class AuthController {
     }
 
     @PostMapping("/autenticacao")
-    public Mono<ResponseEntity<SignInResponseDto>> signIn(@Valid @RequestBody AuthDto credentials) throws Exception {
+    public Mono<ResponseEntity<SignInResponseDto>> signIn(@Valid @RequestBody AuthDto credentials) {
 
         // Cria instancia de autenticação com os dados do usuário
         var userCredentials = new UsernamePasswordAuthenticationToken(credentials.email(), credentials.password());

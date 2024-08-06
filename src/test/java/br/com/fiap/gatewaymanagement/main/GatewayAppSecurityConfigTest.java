@@ -1,12 +1,12 @@
 package br.com.fiap.gatewaymanagement.main;
 
+import org.mockito.Mock;
+import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.ReactiveAuthenticationManager;
 import org.springframework.security.authentication.UserDetailsRepositoryReactiveAuthenticationManager;
 import org.springframework.security.config.Customizer;
-import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity;
 import org.springframework.security.config.web.server.SecurityWebFiltersOrder;
 import org.springframework.security.config.web.server.ServerHttpSecurity;
 import org.springframework.security.core.userdetails.ReactiveUserDetailsService;
@@ -18,19 +18,14 @@ import br.com.fiap.gatewaymanagement.application.usecases.GetUserByEmailInteract
 import br.com.fiap.gatewaymanagement.application.usecases.ValidateJwtInteractor;
 import br.com.fiap.gatewaymanagement.main.filters.CustomGlobalFilter;
 
-@Configuration
-@EnableWebFluxSecurity
-public class GatewayAppSecurityConfig {
+@TestConfiguration
+public class GatewayAppSecurityConfigTest {
 
-    private final GetUserByEmailInteractor getUserByEmailInteractor;
+    @Mock
+    private GetUserByEmailInteractor getUserByEmailInteractor;
 
-    private final ValidateJwtInteractor validateJwtInteractor;
-
-    public GatewayAppSecurityConfig(GetUserByEmailInteractor getUserByEmailInteractor,
-            ValidateJwtInteractor validateJwtInteractor) {
-        this.getUserByEmailInteractor = getUserByEmailInteractor;
-        this.validateJwtInteractor = validateJwtInteractor;
-    }
+    @Mock
+    private ValidateJwtInteractor validateJwtInteractor;
 
     @Bean
     SecurityWebFilterChain filterChain(ServerHttpSecurity http) throws Exception {

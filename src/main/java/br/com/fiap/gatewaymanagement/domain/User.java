@@ -22,6 +22,19 @@ public class User {
     private UserRoleEnum role;
 
     public User(
+            String name,
+            String email,
+            String password,
+            LocalDateTime createdAt,
+            UserRoleEnum role) {
+        this.name = name;
+        this.email = email;
+        this.password = password;
+        this.createdAt = createdAt;
+        this.role = role;
+    }
+
+    public User(
             UUID id,
             String name,
             String email,
@@ -34,19 +47,6 @@ public class User {
         this.email = email;
         this.password = password;
         this.isActive = isActive;
-        this.createdAt = createdAt;
-        this.role = role;
-    }
-
-    public User(
-            String name,
-            String email,
-            String password,
-            LocalDateTime createdAt,
-            UserRoleEnum role) {
-        this.name = name;
-        this.email = email;
-        this.password = password;
         this.createdAt = createdAt;
         this.role = role;
     }
