@@ -3,28 +3,29 @@ spring:
     gateway:
         routes:
           - id: users_route
-            uri: http://localhost:8081
+            uri: ${USER_MS_HOST:http://localhost:8081}
+
             predicates:
               - Path=/api/usuarios
             filters:
               - RewritePath=/api/usuarios, /user-management/api/v1/users
 
           - id: create-client
-            uri: http://localhost:8082
+            uri: ${CLIENT_MS_HOST:http://localhost:8082}
             predicates:
               - Path=/api/cliente
             filters:
               - RewritePath=/api/cliente, /api/cliente
               
           - id: create-client-card
-            uri: http://localhost:8083
+            uri: ${CARD_MS_HOST:http://localhost:8083}
             predicates:
               - Path=/api/cartao
             filters:
               - RewritePath=/api/cartao, /api/cartao
 
           - id: create-payment
-            uri: http://localhost:8084
+            uri: ${PAYMENT_MS_HOST:http://localhost:8084}
             predicates:
               - Path=/api/pagamentos/**
             filters:
