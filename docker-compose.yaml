@@ -1,0 +1,114 @@
+services:
+  user-ms:
+    image: brunolimadev/fiap-hackathon-user-management:1.0.2
+    ports:
+      - "8081"
+    environment:
+      - POSTGRES_URL=jdbc:postgresql://user-db:5432/user-management-db
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=paymentuser
+      - JWT_SECRET=jwtpaymentsystem
+    networks:
+      - network
+    restart: always
+    depends_on:
+      - user-db
+
+  user-db:
+    image: postgres:latest
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=paymentuser
+      - POSTGRES_DB=user-management-db
+    networks:
+      - network
+    restart: always
+
+  card-ms:
+    image: brunolimadev/fiap-hackathon-card-management:1.0.0
+    ports:
+      - "8083"
+    environment:
+      - POSTGRES_URL=jdbc:postgresql://card-db:5432/card-management-db
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=paymentcard
+      - JWT_SECRET=jwtpaymentsystem
+    networks:
+      - network
+    restart: always
+    depends_on:
+      - card-db
+
+  card-db:
+    image: postgres:latest
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=paymentcard
+      - POSTGRES_DB=card-management-db
+    networks:
+      - network
+    restart: always
+
+  payment-ms:
+    image: brunolimadev/fiap-hackathon-payment-management:1.0.3
+    ports:
+      - "8084"
+    environment:
+      - MONGO_URL=mongodb://payment-db:27017/fiap-hackathon-payment-db
+      - MONGO_PASSWORD=paymentpass
+
+    networks:
+      - network
+    restart: always
+    depends_on:
+      - payment-db
+
+  payment-db:
+    image: mongo:latest
+    networks:
+      - network
+    restart: always
+
+  client-ms:
+    image: brunolimadev/fiap-hackathon-client-management:1.0.2
+    ports:
+      - "8082"
+    environment:
+      - POSTGRES_URL=jdbc:postgresql://client-db:5432/client-management-db
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=paymentcard
+      - JWT_SECRET=jwtpaymentsystem
+    networks:
+      - network
+    restart: always
+    depends_on:
+      - card-db
+
+  client-db:
+    image: postgres:latest
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=paymentclient
+      - POSTGRES_DB=client-management-db
+    networks:
+      - network
+    restart: always
+
+  gateway-ms:
+    image: brunolimadev/fiap-hackathon-gateway-management:1.0.1
+    ports:
+      - "8080:8080"
+    networks:
+      - network
+    environment:
+      - USER_MS_URL=http://user-ms:8081/user-management/api/v1/users
+    restart: always
+    depends_on:
+      - user-ms
+      - card-ms
+      - client-ms
+      - payment-ms
+
+networks:
+  network:
+    driver: bridge
