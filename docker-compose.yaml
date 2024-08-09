@@ -110,7 +110,10 @@ services:
       - CARD_MS_HOST=http://card-ms:8083
       - PAYMENT_MS_HOST=http://payment-ms:8084
       - JWT_SECRET=fiaphackathonpaymentsystem
-
+      - TZ=America/Sao_Paulo
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /etc/timezone:/etc/timezone:ro
     restart: always
     depends_on:
       - user-ms
