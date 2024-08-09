@@ -5,38 +5,32 @@ spring:
           - id: users_route
             uri: http://localhost:8081
             predicates:
-              - Path=/gateway-management/api/usuarios
+              - Path=/api/usuarios
             filters:
-              - RewritePath=/gateway-management/api/usuarios, /user-management/api/v1/users
+              - RewritePath=/api/usuarios, /user-management/api/v1/users
 
           - id: create-client
             uri: http://localhost:8082
             predicates:
-              - Path=/gateway-management/api/cliente
+              - Path=/api/cliente
             filters:
-              - RewritePath=/gateway-management/api/cliente, /api/cliente
+              - RewritePath=/api/cliente, /api/cliente
               
           - id: create-client-card
             uri: http://localhost:8083
             predicates:
-              - Path=/gateway-management/api/cartao
+              - Path=/api/cartao
             filters:
-              - RewritePath=/gateway-management/api/cartao, /api/cartao
+              - RewritePath=/api/cartao, /api/cartao
 
           - id: create-payment
             uri: http://localhost:8084
             predicates:
-              - Path=/gateway-management/api/pagamentos
+              - Path=/api/pagamentos/**
             filters:
-              - RewritePath=/gateway-management/api/pagamentos, /api/pagamentos
+              - RewritePath=/api/pagamentos, /api/pagamentos
   main:
     web-application-type: reactive
-
-
-server:
-  port: 8080
-  servlet:
-    context-path: /gateway-management/api
 
 api:                              
     security:

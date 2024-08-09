@@ -1,6 +1,5 @@
 package br.com.fiap.gatewaymanagement.infra.controllers;
 
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.ReactiveAuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -20,7 +19,7 @@ import jakarta.validation.Valid;
 import reactor.core.publisher.Mono;
 
 @RestController
-@RequestMapping("/gateway-management/api")
+@RequestMapping("/api")
 @Tag(name = "Auth Controller", description = "User authentication")
 public class AuthController {
 
@@ -49,18 +48,13 @@ public class AuthController {
             try {
                 jwt = generateJwtInteractor.execute(user);
 
-                // Adiciona o token no header da resposta
-                HttpHeaders hearders = new HttpHeaders();
-
-                // Adiciona a header Authorization com o token
-                hearders.add(HttpHeaders.AUTHORIZATION, "Bearer " + jwt);
+                String bearer = String.format("Bearer %s", jwt);
 
                 // Cria o objeto de respota com o status e o nome do usuário
-                SignInResponseDto response = new SignInResponseDto(true,
-                        ((GetUserByEmailResponse) authentication.getPrincipal()).getName());
+                SignInResponseDto response = new SignInResponseDto(bearer);
 
                 // Retorna a resposta com o token no header
-                return Mono.just(ResponseEntity.ok().headers(hearders).body(response));
+                return Mono.just(ResponseEntity.ok().body(response));
             } catch (Exception e) {
                 throw new RuntimeException("Erro ao gerar token");
             }
