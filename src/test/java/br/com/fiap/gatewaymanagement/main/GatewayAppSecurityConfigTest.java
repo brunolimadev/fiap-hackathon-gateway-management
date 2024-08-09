@@ -21,58 +21,59 @@ import br.com.fiap.gatewaymanagement.main.filters.CustomGlobalFilter;
 @TestConfiguration
 public class GatewayAppSecurityConfigTest {
 
-    @Mock
-    private GetUserByEmailInteractor getUserByEmailInteractor;
+        @Mock
+        private GetUserByEmailInteractor getUserByEmailInteractor;
 
-    @Mock
-    private ValidateJwtInteractor validateJwtInteractor;
+        @Mock
+        private ValidateJwtInteractor validateJwtInteractor;
 
-    @Bean
-    SecurityWebFilterChain filterChain(ServerHttpSecurity http) throws Exception {
+        @Bean
+        SecurityWebFilterChain filterChain(ServerHttpSecurity http) throws Exception {
 
-        return http
+                return http
 
-                // Enable Basic Authentication with Default Configuration
-                .httpBasic(Customizer.withDefaults())
+                                // Enable Basic Authentication with Default Configuration
+                                .httpBasic(Customizer.withDefaults())
 
-                // Disable CSRF and Session Management to use Basic Authentication
-                .csrf(csrf -> csrf.disable())
+                                // Disable CSRF and Session Management to use Basic Authentication
+                                .csrf(csrf -> csrf.disable())
 
-                .authorizeExchange(exchange -> exchange
+                                .authorizeExchange(exchange -> exchange
 
-                        // Permitir acesso às rotas de autenticação
-                        .pathMatchers(HttpMethod.POST, "/gateway-management/api/autenticacao/**").permitAll()
+                                                // Permitir acesso às rotas de autenticação
+                                                .pathMatchers(HttpMethod.POST, "/api/autenticacao/**").permitAll()
 
-                        // Permitir acesso às rotas de autenticação
-                        .anyExchange().authenticated())
-                .addFilterBefore(new CustomGlobalFilter(validateJwtInteractor, getUserByEmailInteractor),
-                        SecurityWebFiltersOrder.AUTHENTICATION)
-                .build();
-    }
+                                                // Permitir acesso às rotas de autenticação
+                                                .anyExchange().authenticated())
+                                .addFilterBefore(
+                                                new CustomGlobalFilter(validateJwtInteractor, getUserByEmailInteractor),
+                                                SecurityWebFiltersOrder.AUTHENTICATION)
+                                .build();
+        }
 
-    /**
-     * Método responsável por criar o AuthenticationManager
-     *
-     * @param userDetailsService
-     * @param passwordEncoder
-     * @return
-     */
-    @Bean
-    ReactiveAuthenticationManager authenticationManager(ReactiveUserDetailsService userDetailsService,
-            PasswordEncoder passwordEncoder) {
-        UserDetailsRepositoryReactiveAuthenticationManager authenticationManager = new UserDetailsRepositoryReactiveAuthenticationManager(
-                userDetailsService);
-        authenticationManager.setPasswordEncoder(passwordEncoder);
-        return authenticationManager;
-    }
+        /**
+         * Método responsável por criar o AuthenticationManager
+         *
+         * @param userDetailsService
+         * @param passwordEncoder
+         * @return
+         */
+        @Bean
+        ReactiveAuthenticationManager authenticationManager(ReactiveUserDetailsService userDetailsService,
+                        PasswordEncoder passwordEncoder) {
+                UserDetailsRepositoryReactiveAuthenticationManager authenticationManager = new UserDetailsRepositoryReactiveAuthenticationManager(
+                                userDetailsService);
+                authenticationManager.setPasswordEncoder(passwordEncoder);
+                return authenticationManager;
+        }
 
-    /**
-     * Método responsável por criar o PasswordEncoder
-     *
-     * @return
-     */
-    @Bean
-    PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
+        /**
+         * Método responsável por criar o PasswordEncoder
+         *
+         * @return
+         */
+        @Bean
+        PasswordEncoder passwordEncoder() {
+                return new BCryptPasswordEncoder();
+        }
 }

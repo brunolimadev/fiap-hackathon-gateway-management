@@ -46,7 +46,7 @@ public class GatewayAppSecurityConfig {
                 .authorizeExchange(exchange -> exchange
 
                         // Permitir acesso às rotas de autenticação
-                        .pathMatchers(HttpMethod.POST, "/gateway-management/api/autenticacao/**").permitAll()
+                        .pathMatchers(HttpMethod.POST, "/api/autenticacao/**").permitAll()
 
                         // Permitir acesso às rotas de autenticação
                         .anyExchange().authenticated())
